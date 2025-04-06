@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "https://trial-bzhbwagdk-aayushmansharma007s-projects.vercel.app")
+@CrossOrigin(origins = "https://trial-aayushmansharma007s-projects.vercel.app")
 public class OrderController {
     @Autowired
     private OrderService orderService;
