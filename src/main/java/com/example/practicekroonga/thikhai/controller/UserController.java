@@ -16,7 +16,7 @@ import com.example.practicekroonga.thikhai.service.UserService;
 
 import java.util.Optional;
 
-@CrossOrigin(origins = "https://trial-aayushmansharma007s-projects.vercel.app")
+@CrossOrigin(origins = "https://achar-website.vercel.app")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
