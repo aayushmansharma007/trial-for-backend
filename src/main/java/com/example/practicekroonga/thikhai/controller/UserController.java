@@ -27,6 +27,19 @@ public class UserController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    // Place more specific routes first
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
+        Optional<User> user = userService.loginUser(request.getUsername(), request.getPassword());
+        if (user.isPresent()) {
+            String token = jwtTokenProvider.generateToken(user.get().getId(), user.get().getRole());
+            UserLoginResponse response = new UserLoginResponse();
+            response.setToken(token);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegistrationRequest request) {
         User user = new User();
@@ -47,24 +60,10 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
-        Optional<User> user = userService.loginUser(request.getUsername(), request.getPassword());
-
-        if (user.isPresent()) {
-            String token = jwtTokenProvider.generateToken(user.get().getId(), user.get().getRole());
-            UserLoginResponse response = new UserLoginResponse();
-            response.setToken(token);
-            return ResponseEntity.ok(response);
-        }
-
-        return ResponseEntity.status(401).body("Invalid credentials");
-    }
-
+    // Place more generic routes last
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-
         if (user.isPresent()) {
             UserResponse response = new UserResponse();
             response.setId(user.get().getId());
@@ -74,7 +73,6 @@ public class UserController {
             response.setPhone(user.get().getPhone());
             return ResponseEntity.ok(response);
         }
-
         return ResponseEntity.notFound().build();
     }
 }
