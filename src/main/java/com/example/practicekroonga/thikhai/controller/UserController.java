@@ -34,6 +34,7 @@ public class UserController {
             String token = jwtTokenProvider.generateToken(user.get().getId(), user.get().getRole());
             UserLoginResponse response = new UserLoginResponse();
             response.setToken(token);
+            response.setUserId(user.get().getId()); // Add userId to response
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(401).body("Invalid credentials");
