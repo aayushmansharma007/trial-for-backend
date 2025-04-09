@@ -15,6 +15,9 @@ import com.example.practicekroonga.thikhai.security.JwtTokenProvider;
 import com.example.practicekroonga.thikhai.service.UserService;
 
 import java.util.Optional;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,28 +32,49 @@ public class UserController {
     // Place more specific routes first
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginRequest request) {
-        Optional<User> user = userService.loginUser(request.getUsername(), request.getPassword());
-        if (user.isPresent()) {
-            String token = jwtTokenProvider.generateToken(user.get().getId(), user.get().getRole());
-            UserLoginResponse response = new UserLoginResponse();
-            response.setToken(token);
-            response.setUserId(user.get().getId()); // Add userId to response
-            return ResponseEntity.ok(response);
+        try {
+            Optional<User> userOpt = userService.loginUser(request.getUsername(), request.getPassword());
+            
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                String token = jwtTokenProvider.generateToken(user.getId(), user.getRole());
+                
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Login successful");
+                response.put("token", token);
+                response.put("userId", user.getId());
+                response.put("username", user.getUsername());
+                
+                return ResponseEntity.ok(response);
+            }
+            
+            return ResponseEntity.status(401)
+                .body(Collections.singletonMap("message", "Invalid credentials"));
+        } catch (Exception e) {
+            return ResponseEntity.status(401)
+                .body(Collections.singletonMap("message", "Login failed: " + e.getMessage()));
         }
-        return ResponseEntity.status(401).body("Invalid credentials");
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegistrationRequest request) {
         try {
+            // Validation checks
+            if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", "Username is required"));
+            }
+
             // Check if username already exists
             if (userService.findByUsername(request.getUsername()).isPresent()) {
-                return ResponseEntity.badRequest().body(new ErrorResponse("Username already exists"));
+                return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", "Username already exists"));
             }
 
             // Check if email already exists
             if (userService.findByEmail(request.getEmail()).isPresent()) {
-                return ResponseEntity.badRequest().body(new ErrorResponse("Email already exists"));
+                return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", "Email already exists"));
             }
 
             User user = new User();
@@ -63,15 +87,20 @@ public class UserController {
 
             User savedUser = userService.registerUser(user);
 
-            UserRegistrationResponse response = new UserRegistrationResponse();
-            response.setId(savedUser.getId());
-            response.setEmail(savedUser.getEmail());
-            response.setUsername(savedUser.getUsername());
-            response.setPhone(savedUser.getPhone());
-
+            // Create response with token
+            String token = jwtTokenProvider.generateToken(savedUser.getId(), savedUser.getRole());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Registration successful");
+            response.put("token", token);
+            response.put("userId", savedUser.getId());
+            response.put("username", savedUser.getUsername());
+            
             return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ErrorResponse("Registration failed: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                .body(Collections.singletonMap("message", "Registration failed: " + e.getMessage()));
         }
     }
 
