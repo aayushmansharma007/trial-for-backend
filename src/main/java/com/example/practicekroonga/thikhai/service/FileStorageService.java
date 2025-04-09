@@ -1,5 +1,6 @@
 package com.example.practicekroonga.thikhai.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -11,6 +12,9 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
     private final Path root = Paths.get("uploads");
+    
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     public FileStorageService() {
         try {
@@ -24,9 +28,10 @@ public class FileStorageService {
         try {
             String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Files.copy(file.getInputStream(), this.root.resolve(filename));
-            return "/uploads/" + filename;
+            return baseUrl + "/uploads/" + filename;
         } catch (IOException e) {
             throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
         }
     }
 }
+

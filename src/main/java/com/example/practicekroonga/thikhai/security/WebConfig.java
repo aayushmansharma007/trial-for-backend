@@ -19,8 +19,8 @@ public class WebConfig implements WebMvcConfigurer {
 				.maxAge(3600); // 1 hour
 	}
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**").addResourceLocations("file:uploads/");
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/uploads/**").addResourceLocations("file:uploads/");
+	}
 }
