@@ -19,13 +19,15 @@ public class CartController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
-            @RequestParam Long userId,    // Required
-            @RequestParam Long productId, // Required
+            @RequestParam Long userId,
+            @RequestParam Long productId,
             @RequestParam Integer quantity) {
+        System.out.println("Received request - userId: " + userId + ", productId: " + productId + ", quantity: " + quantity);
         try {
             CartItem cartItem = cartService.addToCart(userId, productId, quantity);
             return ResponseEntity.ok(cartItem);
         } catch (RuntimeException e) {
+            System.out.println("Error processing request: " + e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
