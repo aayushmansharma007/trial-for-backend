@@ -42,22 +42,37 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegistrationRequest request) {
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setRole(User.Role.CUSTOMER);
+        try {
+            // Check if username already exists
+            if (userService.findByUsername(request.getUsername()).isPresent()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Username already exists"));
+            }
 
-        User savedUser = userService.registerUser(user);
+            // Check if email already exists
+            if (userService.findByEmail(request.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("Email already exists"));
+            }
 
-        UserRegistrationResponse response = new UserRegistrationResponse();
-        response.setId(savedUser.getId());
-        response.setEmail(savedUser.getEmail());
-        response.setPhone(savedUser.getPhone());
-        response.setUsername(savedUser.getUsername());
+            User user = new User();
+            user.setFirstName(request.getFirstName());
+            user.setEmail(request.getEmail());
+            user.setUsername(request.getUsername());
+            user.setPassword(request.getPassword());
+            user.setPhone(request.getPhone());
+            user.setRole(User.Role.CUSTOMER);
 
-        return ResponseEntity.ok(response);
+            User savedUser = userService.registerUser(user);
+
+            UserRegistrationResponse response = new UserRegistrationResponse();
+            response.setId(savedUser.getId());
+            response.setEmail(savedUser.getEmail());
+            response.setUsername(savedUser.getUsername());
+            response.setPhone(savedUser.getPhone());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Registration failed: " + e.getMessage()));
+        }
     }
 
     // Place more generic routes last
