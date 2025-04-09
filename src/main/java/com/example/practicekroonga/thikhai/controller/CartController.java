@@ -15,8 +15,8 @@ public class CartController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
-            @RequestParam Long userId,
-            @RequestParam Long productId,
+            @RequestParam Long userId,    // Required
+            @RequestParam Long productId, // Required
             @RequestParam Integer quantity) {
         try {
             CartItem cartItem = cartService.addToCart(userId, productId, quantity);
@@ -59,4 +59,17 @@ public class CartController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/count/{userId}")
+    public ResponseEntity<?> getCartCount(@PathVariable Long userId) {
+        try {
+            List<CartItem> cartItems = cartService.getCartItems(userId);
+            return ResponseEntity.ok(Map.of(
+                "count", cartItems.size()
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
+

@@ -25,12 +25,20 @@ public class CartService {
     private ProductRepository productRepository;
 
     public CartItem addToCart(Long userId, Long productId, Integer quantity) {
+        // Validate inputs
+        if (userId == null || productId == null || quantity == null || quantity < 1) {
+            throw new RuntimeException("Invalid input parameters");
+        }
+
+        // Check if user exists
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
+        // Check if product exists
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        // Check if item already in cart
         Optional<CartItem> existingCartItem = cartItemRepository.findByUserIdAndProductId(userId, productId);
 
         if (existingCartItem.isPresent()) {
