@@ -4,6 +4,9 @@ import com.example.practicekroonga.thikhai.Entity.Product;
 import com.example.practicekroonga.thikhai.models.ProductRequest;
 import com.example.practicekroonga.thikhai.service.ProductService;
 import com.example.practicekroonga.thikhai.service.FileStorageService;
+
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
